@@ -13,8 +13,9 @@
 #     ('text2.txt'. 'hypotheses.')
 #   ]
 #
+import os.path
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, isdir
 import re
 
 def load_input(input_directory):
@@ -100,7 +101,9 @@ def reducer(sequence):
 # y lo crea. Si el directorio existe, la función falla.
 #
 def create_ouptput_directory(output_directory):
-    return open(join(output_directory, "part-00000"), "w", encoding="UTF-8")
+    if isdir(output_directory):
+        raise Exception("El directorio ya existe")
+    os.mkdir(output_directory)
 
 
 #
@@ -113,10 +116,14 @@ def create_ouptput_directory(output_directory):
 #
 def save_output(sequence, output_directory):
 
-      with create_ouptput_directory(output_directory) as file:
+    create_ouptput_directory(output_directory)
+
+    with open(join(output_directory, "part-00000"), "w", encoding="UTF-8") as file:
 
         for tup in sequence:
           file.write(f"{tup[0]}\t{tup[1]}\n")
+
+    create_marker(output_directory)
 
 
 
@@ -145,7 +152,7 @@ def job(input_directory, output_directory):
 
     save_output(reduced_lst, output_directory)
 
-    create_marker(output_directory)
+
 
 
 if __name__ == "__main__":
