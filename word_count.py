@@ -13,8 +13,24 @@
 #     ('text2.txt'. 'hypotheses.')
 #   ]
 #
+from os import listdir
+from os.path import isfile, join
+import re
+
 def load_input(input_directory):
-    pass
+  tup_lst = list()
+  for listed_object in listdir(input_directory):
+
+    full_path = join(input_directory, listed_object)
+    if isfile(full_path):
+
+      with open(full_path, "r", encoding = "UTF-8") as file:
+        for line in file.read().splitlines():
+          tup_lst.append((listed_object, line))
+
+  return tup_lst
+
+
 
 
 #
@@ -30,7 +46,14 @@ def load_input(input_directory):
 #   ]
 #
 def mapper(sequence):
-    pass
+  map_lst = list()
+  for tup in sequence:
+    clean_line = re.sub("[^a-zA-Z ]", "", tup[1]).lower()
+    for word in clean_line.split():
+      map_lst.append((word, 1))
+
+  return map_lst
+
 
 
 #
@@ -45,7 +68,9 @@ def mapper(sequence):
 #   ]
 #
 def shuffle_and_sort(sequence):
-    pass
+    sequence.sort(key= lambda x: x[0])
+    return sequence
+
 
 
 #
@@ -55,7 +80,19 @@ def shuffle_and_sort(sequence):
 # texto.
 #
 def reducer(sequence):
-    pass
+    final_lst = list()
+    count = 0
+    current_word = sequence[0][0]
+    for tup in sequence:
+      if current_word == tup[0]:
+        count += tup[1]
+      else:
+        final_lst.append((current_word, count))
+        current_word = tup[0]
+        count = tup[1]
+
+    return final_lst
+
 
 
 #
@@ -63,7 +100,7 @@ def reducer(sequence):
 # y lo crea. Si el directorio existe, la función falla.
 #
 def create_ouptput_directory(output_directory):
-    pass
+    return open(join(output_directory, "part-00000"), "w", encoding="UTF-8")
 
 
 #
@@ -74,8 +111,13 @@ def create_ouptput_directory(output_directory):
 # elemento es la clave y el segundo el valor. Los elementos de la tupla están
 # separados por un tabulador.
 #
-def save_output(output_directory, sequence):
-    pass
+def save_output(sequence, output_directory):
+
+      with create_ouptput_directory(output_directory) as file:
+
+        for tup in sequence:
+          file.write(f"{tup[0]}\t{tup[1]}\n")
+
 
 
 #
@@ -83,14 +125,27 @@ def save_output(output_directory, sequence):
 # entregado como parámetro.
 #
 def create_marker(output_directory):
-    pass
+    file = open(join(output_directory, "_SUCCESS"), "w", encoding="UTF-8")
+    file.close()
+
+
 
 
 #
 # Escriba la función job, la cual orquesta las funciones anteriores.
 #
 def job(input_directory, output_directory):
-    pass
+    file_line_lst = load_input(input_directory)
+
+    mapped_lst = mapper(file_line_lst)
+
+    shuffled_lst = shuffle_and_sort(mapped_lst)
+
+    reduced_lst = reducer(shuffled_lst)
+
+    save_output(reduced_lst, output_directory)
+
+    create_marker(output_directory)
 
 
 if __name__ == "__main__":
