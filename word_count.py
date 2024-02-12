@@ -131,6 +131,7 @@ def save_output(sequence, output_directory):
 # La siguiente función crea un archivo llamado _SUCCESS en el directorio
 # entregado como parámetro.
 #
+
 def create_marker(output_directory):
     file = open(join(output_directory, "_SUCCESS"), "w", encoding="UTF-8")
     file.close()
